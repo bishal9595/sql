@@ -1,0 +1,144 @@
+select * from tab;  // list of tables
+
+select * from departments;
+
+select department_id,department_name from departments;
+
+desc employees; // structure
+
+
+create table account
+(
+   aid number(8) primary key,
+   mobileno number(10) unique not null,
+   accountholder varchar2(30) not null,
+   balance number(8,2) check(balance>=1000.00) 
+);
+
+insert into account values(100,9999999999,'King',24000.00);
+
+savepoint A; // saving the last transaction
+
+insert into account values(101,9999999994,'Raja',50000.00);
+insert into account values(102,9999999222,'Ram',50000.00);
+
+update account set balance=30000.00,accountholder='King Khan' where aid=100;
+
+delete from account;
+
+rollback to B; // goes back to previous state
+
+commit;  // save changes 
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees;
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where department_id=50;
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where department_id=50 and job_id='ST_MAN'; //emp in dept_id=50 and job_id='ST_MAN
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where department_id=50 or job_id like '%_MAN';  //emp in dept_id=50 or job_id='%_MAN'
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where  job_id in ('ST_MAN','SA_MAN','PU_MAN');
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where  job_id NOT in ('ST_MAN','SA_MAN','PU_MAN');
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where salary between 10000 and 20000 order by job_id,salary;
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where salary not between 10000 and 20000;
+
+select last_name,salary,commission_pct,hire_date,job_id,department_id from employees where hire_date between '01-JAN-2005' and '31-dec-08' order by hire_date;
+
+select last_name,lower(last_name),upper(last_name) from employees;
+
+
+
+
+select sum(salary) from employees;
+
+select sum(salary) as totalsalary,max(salary) as "Max Salary",min(salary) as "Min Salary",avg(salary) as avg from employees;
+
+select sum(commission_pct),avg(commission_pct),count(commission_pct) from employees;
+
+select sum(nvl(commission_pct,0)),avg(nvl(commission_pct,0)),count(nvl(commission_pct,0)) from employees;
+
+select department_id,job_id,sum(salary) as total, count(salary) as count from employees group by department_id,job_id order by department_id,job_id;
+
+select department_id,job_id,sum(salary) from employees group by department_id,job_id having sum(salary)>50000 order by department_id,job_id;
+
+
+select count(distinct(department_id)) from employees;                        //  count no of departments uniquely in employees table
+
+select count(department_id) from employees group by department_id;        // count no of employees in each department
+
+
+
+========== joins============================
+
+select employees.employee_id,employees.last_name,employees.department_id,departments.department_id,departments.department_name from employees,departments; // cartesian product
+
+
+select employees.employee_id,employees.last_name,employees.department_id,departments.department_id,departments.department_name from employees cross join departments; // standard sql join or cross join
+
+
+select e.employee_id,e.last_name,e.department_id,d.department_id,d.department_name from employees e,departments d where e.department_id=d.department_id;  // eqi join or inner join
+
+
+select employees.employee_id,employees.last_name,employees.department_id,departments.department_id,departments.department_name from employees join departments on employees.department_id=departments.department_id; //    standard eqi join can be use in all standard databases
+
+
+select e.employee_id,e.last_name,e.department_id,d.department_id,d.department_name from employees e join departments d on e.department_id=d.department_id;  // standard eqi join
+
+===================================================
+
+eqi join(matched records)    => natural join => performs join on common column names between tables
+                             =>  common in=> same column name, same datatype, same size.
+                              => common tables are displayed only once.
+                              => perform joins on all common columns 
+
+select * from employees natural join departments; // perfect eqi join  =>  e.department_id=d.department_id and e.manager_id=d.manager_id
+
+=> to perform natural join on one colum name
+
+  select * from employees join departments using (department_id);
+
+==========================================================================
+Outer join(matched and unmatched records)
+
+left outer join
+
+select e.employee_id,e.last_name,e.department_id,d.department_id,d.department_name from employees e left outer join departments d on e.department_id=d.department_id;
+
+
+right outer join
+
+select e.employee_id,e.last_name,e.department_id,d.department_id,d.department_name from employees e right outer join departments d on e.department_id=d.department_id;
+
+
+full outer join
+
+select e.employee_id,e.last_name,e.department_id,d.department_id,d.department_name from employees e full outer join departments d on e.department_id=d.department_id;
+
+
+=======================================================================================
+
+Self join
+
+select w.employee_id,w.manager_id,w.last_name,m.employee_id,m.manager_id,m.last_name from employees w,employees m where w.employee_id=m.manager_id; // oracle
+
+select w.employee_id,w.manager_id,w.last_name,m.employee_id,m.manager_id,m.last_name from employees w join employees m on w.employee_id=m.manager_id; // standard self join
+
+===========================================================================
+
+non-eqi join + self join  (worker hiredate is less than manager hiredate that is worker joined after manageer)   =====  non-eqi join (uses > and  <  )
+
+select w.hire_date,w.employee_id,w.manager_id,w.last_name,m.employee_id,m.manager_id,m.last_name,m.hire_date from employees w join employees m on w.employee_id=m.manager_id and w.hire_date < m.hire_date;
+
+
+====================================================================================================================
+
+
+
+
+
+
+
